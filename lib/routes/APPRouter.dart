@@ -2,6 +2,7 @@
 // import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:safebox/pages/PageAddAccount.dart';
 
 import '../pages/APPNotFoundPage.dart';
 import '../pages/PageHome.dart';
@@ -10,6 +11,7 @@ import '../pages/PageHome.dart';
 class APPRouter {
   static const notFound = '/APPNotFoundPage';
   static const homePage = '/HomePage';
+  static const addAccountPage = '/AddAccountPage';
 }
 
 class AppPage {
@@ -25,6 +27,10 @@ class AppPage {
     GetPage(
       name: APPRouter.homePage,
       page: () => PageHome(),
+    ),
+    GetPage(
+      name: APPRouter.addAccountPage,
+      page: () => PageAddAccount(),
     ),
   ];
 }
