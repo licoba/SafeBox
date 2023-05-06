@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:safebox/model/Account.dart';
+import '../helper/DatabaseHelper.dart';
 import '../widget/TextInputAccount.dart';
 
 // 添加账号页面
 @immutable
-class PageAddAccount extends StatelessWidget {
+class PageAddAccount extends StatefulWidget {
   const PageAddAccount({super.key});
+
+
+  @override
+  State<StatefulWidget> createState() {
+    return _PageAddAccountState();
+  }
+}
+
+class _PageAddAccountState extends State<PageAddAccount> {
+
+  final dbHelper = DatabaseHelper.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +37,10 @@ class PageAddAccount extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    dbHelper.insert(AccountBean(
+                        name: "name", account: "account", pwd: "pwd"));
+                  },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8), // 设置圆角弧度
@@ -47,35 +63,67 @@ class PageAddAccount extends StatelessWidget {
         ),
         body: SingleChildScrollView(
           child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0, vertical: 16.0),
               child: Column(
                 children: [
+                  ElevatedButton(
+                    onPressed: ()async {
+                      print(await dbHelper.accountBeans()); // Prints Fido with age 42.
+                    },
+                    child: const Text(
+                      '查询结果',
+                      style: TextStyle(
+                        fontSize: 16,
+                        letterSpacing: 4,
+                      ),
+                    ),
+                  ),
                   TextInputAccount(
-                      name: "名称", hintText: "请输入...", controller: controller,isRequired:true),
+                      name: "名称",
+                      hintText: "请输入...",
+                      controller: controller,
+                      isRequired: true),
                   const SizedBox(height: 16), //保留间距
                   TextInputAccount(
-                      name: "账号", hintText: "请输入...", controller: controller),
+                      name: "账号",
+                      hintText: "请输入...",
+                      controller: controller),
                   const SizedBox(height: 16), //保留间距
                   TextInputAccount(
-                      name: "密码", hintText: "请输入...", controller: controller),
+                      name: "密码",
+                      hintText: "请输入...",
+                      controller: controller),
                   const SizedBox(height: 16), //保留间距
                   TextInputAccount(
-                      name: "自定义1", hintText: "请输入...", controller: controller),
+                      name: "自定义1",
+                      hintText: "请输入...",
+                      controller: controller),
                   const SizedBox(height: 26), //保留间距
                   TextInputAccount(
-                      name: "自定义2", hintText: "请输入...", controller: controller),
+                      name: "自定义2",
+                      hintText: "请输入...",
+                      controller: controller),
                   const SizedBox(height: 26), //保留间距
                   TextInputAccount(
-                      name: "自定义3", hintText: "请输入...", controller: controller),
+                      name: "自定义3",
+                      hintText: "请输入...",
+                      controller: controller),
                   const SizedBox(height: 26), //保留间距
                   TextInputAccount(
-                      name: "自定义3", hintText: "请输入...", controller: controller),
+                      name: "自定义3",
+                      hintText: "请输入...",
+                      controller: controller),
                   const SizedBox(height: 26), //保留间距
                   TextInputAccount(
-                      name: "自定义3", hintText: "请输入...", controller: controller),
+                      name: "自定义3",
+                      hintText: "请输入...",
+                      controller: controller),
                   const SizedBox(height: 26), //保留间距
                 ],
               )),
         ));
   }
+
+
 }
