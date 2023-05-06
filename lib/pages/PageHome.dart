@@ -45,7 +45,7 @@ class PageHome extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           onPressed: () => print("FloatingActionButton"),
           child: IconButton(
-              icon: Icon(Icons.add), onPressed: () => _jumpToAddAccount()),
+              icon: const Icon(Icons.add), onPressed: () => _jumpToAddAccount()),
         )
         // floatingActionButton: ExpandableFab(
         //   distance: 112.0,
