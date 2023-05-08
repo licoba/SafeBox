@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:safebox/model/Account.dart';
+import 'package:safebox/model/AccountBean.dart';
 import '../helper/DatabaseHelper.dart';
 import '../widget/TextInputAccount.dart';
 
@@ -31,7 +31,9 @@ class _PageAddAccountState extends State<PageAddAccount> {
   List<Widget> _buildItems() {
     List<Widget> items = [
       ElevatedButton(
-        onPressed: () {},
+        onPressed: () async {
+          print(await dbHelper.accountBeans());
+        },
         child: const Text(
           '查询结果',
           style: TextStyle(
@@ -41,35 +43,26 @@ class _PageAddAccountState extends State<PageAddAccount> {
         ),
       ),
       TextInputAccount(
-          name: "名称",
+          name: TextInputAccount.default_name,
           hintText: "请输入...",
-          controller: controllers[0],
           isRequired: true,
           canEditTitle: false),
       TextInputAccount(
-          name: "账号",
-          hintText: "请输入...",
-          controller: controllers[1],
-          canEditTitle: false),
+          name: TextInputAccount.default_account, hintText: "请输入...", canEditTitle: false),
       TextInputAccount(
-          name: "密码",
-          hintText: "请输入...",
-          controller: controllers[2],
-          canEditTitle: false)
+          name: TextInputAccount.default_pwd, hintText: "请输入...", canEditTitle: false)
     ];
 
     return items;
   }
 
+  // 添加一个自定义的组件
   void _addCustomWidget() {
     setState(() {
       TextEditingController newController = TextEditingController();
       controllers = [...controllers, newController];
-      _childWidgets.add(TextInputAccount(
-          name: "",
-          hintText: "请输入...",
-          controller: newController,
-          canEditTitle: true));
+      _childWidgets.add(
+          TextInputAccount(name: "", hintText: "请输入...", canEditTitle: true));
     });
 
     // 使用animateTo函数将页面滚动到底部
@@ -80,6 +73,18 @@ class _PageAddAccountState extends State<PageAddAccount> {
         curve: Curves.easeOut,
       );
     });
+  }
+
+  void _saveAccount() {
+    List<CustomField> customFields = [];
+    for (var element in _childWidgets) {
+      if (element is TextInputAccount) {
+        customFields.add(
+            CustomField(name: element.titleText, content: element.contentText));
+      }
+    }
+    AccountBean accountBean = AccountBean(customFields: customFields);
+    dbHelper.insert(accountBean);
   }
 
   Future<void> getAllResults() async {
@@ -109,9 +114,7 @@ class _PageAddAccountState extends State<PageAddAccount> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () {
-                    dbHelper.insert(AccountBean(
-                        name: "name", account: "account", pwd: "pwd"));
-                    _addCustomWidget();
+                    _saveAccount();
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -149,7 +152,7 @@ class _PageAddAccountState extends State<PageAddAccount> {
                     child: const Text(
                       '添加更多字段',
                     ),
-                  ).paddingOnly(top: 12,bottom: 10),
+                  ).paddingOnly(top: 12, bottom: 10),
                 ),
               ])),
         ));

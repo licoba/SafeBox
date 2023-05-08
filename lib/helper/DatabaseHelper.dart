@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
-import '../model/Account.dart';
+import '../model/AccountBean.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -15,9 +16,8 @@ class DatabaseHelper {
   static const databaseVersion = 1;
   static const tableName = 'account_table';
   static const columnId = 'id';
+  static const columnCustomFields = 'customFields';
   static const columnName = 'name';
-  static const columnAccount = 'account';
-  static const columnPwd = 'pwd';
   static DatabaseHelper? _databaseHelper;
   static Database? _database;
   static final DatabaseHelper instance = DatabaseHelper._createInstance();
@@ -46,9 +46,7 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE $tableName (
             $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-            $columnName TEXT NOT NULL,
-            $columnAccount TEXT,
-            $columnPwd TEXT
+            $columnCustomFields TEXT
           )
           ''');
   }
@@ -56,23 +54,31 @@ class DatabaseHelper {
   Future<int> insert(AccountBean bean) async {
     Database db = await this.db;
     debugPrint("插入账号 $bean");
+    // 将 bean 对象转换成 Map 类型，以便将其存储到数据库中
+    final data = {
+      columnCustomFields: json.encode(bean.customFields?.map((e) => e.toJson()).toList()),
+    };
     return await db.insert(
       tableName,
-      bean.toMap(),
+      data,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
   // 读取数据列表
   Future<List<AccountBean>> accountBeans() async {
-    final db = await this.db;
+    Database db = await this.db;
     final List<Map<String, dynamic>> maps = await db.query(tableName);
-    return List.generate(maps.length, (i) {
+    return List.generate(maps.length, (index) {
+      final id = maps[index][columnId];
+      final customFieldsJson = maps[index][columnCustomFields];
+      final customFieldsMapList = json.decode(customFieldsJson ?? '') as List<
+          dynamic>?;
+      final customFields = customFieldsMapList?.map((e) =>
+          CustomField.fromJson(e)).toList();
       return AccountBean(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        account: maps[i]['account'],
-        pwd: maps[i]['pwd'],
+        id: id,
+        customFields: customFields,
       );
     });
   }
