@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:safebox/model/Account.dart';
@@ -9,7 +11,6 @@ import '../widget/TextInputAccount.dart';
 class PageAddAccount extends StatefulWidget {
   const PageAddAccount({super.key});
 
-
   @override
   State<StatefulWidget> createState() {
     return _PageAddAccountState();
@@ -17,12 +18,82 @@ class PageAddAccount extends StatefulWidget {
 }
 
 class _PageAddAccountState extends State<PageAddAccount> {
-
   final dbHelper = DatabaseHelper.instance;
+  List<Widget> _childWidgets = [];
+  List<TextEditingController> controllers = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
+  final ScrollController _scrollController = ScrollController();
+
+  // 初始化组件列表
+  List<Widget> _buildItems() {
+    List<Widget> items = [
+      ElevatedButton(
+        onPressed: () {},
+        child: const Text(
+          '查询结果',
+          style: TextStyle(
+            fontSize: 16,
+            letterSpacing: 4,
+          ),
+        ),
+      ),
+      TextInputAccount(
+          name: "名称",
+          hintText: "请输入...",
+          controller: controllers[0],
+          isRequired: true,
+          canEditTitle: false),
+      TextInputAccount(
+          name: "账号",
+          hintText: "请输入...",
+          controller: controllers[1],
+          canEditTitle: false),
+      TextInputAccount(
+          name: "密码",
+          hintText: "请输入...",
+          controller: controllers[2],
+          canEditTitle: false)
+    ];
+
+    return items;
+  }
+
+  void _addCustomWidget() {
+    setState(() {
+      TextEditingController newController = TextEditingController();
+      controllers = [...controllers, newController];
+      _childWidgets.add(TextInputAccount(
+          name: "",
+          hintText: "请输入...",
+          controller: newController,
+          canEditTitle: true));
+    });
+
+    // 使用animateTo函数将页面滚动到底部
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  Future<void> getAllResults() async {
+    print(await dbHelper.accountBeans()); // Prints Fido with age 42.
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _childWidgets = _buildItems(); // 初始化_childWidgets
+  }
 
   @override
   Widget build(BuildContext context) {
-    var controller = TextEditingController();
     return Scaffold(
         appBar: AppBar(
           title: const Text('添加新账号'),
@@ -40,6 +111,7 @@ class _PageAddAccountState extends State<PageAddAccount> {
                   onPressed: () {
                     dbHelper.insert(AccountBean(
                         name: "name", account: "account", pwd: "pwd"));
+                    _addCustomWidget();
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -62,68 +134,28 @@ class _PageAddAccountState extends State<PageAddAccount> {
           ),
         ),
         body: SingleChildScrollView(
+          controller: _scrollController, // 将滚动控制器传递给SingleChildScrollView
           child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0, vertical: 16.0),
-              child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: ()async {
-                      print(await dbHelper.accountBeans()); // Prints Fido with age 42.
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              child: Column(children: [
+                ..._childWidgets,
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _addCustomWidget();
                     },
                     child: const Text(
-                      '查询结果',
-                      style: TextStyle(
-                        fontSize: 16,
-                        letterSpacing: 4,
-                      ),
+                      '添加更多字段',
                     ),
-                  ),
-                  TextInputAccount(
-                      name: "名称",
-                      hintText: "请输入...",
-                      controller: controller,
-                      isRequired: true),
-                  const SizedBox(height: 16), //保留间距
-                  TextInputAccount(
-                      name: "账号",
-                      hintText: "请输入...",
-                      controller: controller),
-                  const SizedBox(height: 16), //保留间距
-                  TextInputAccount(
-                      name: "密码",
-                      hintText: "请输入...",
-                      controller: controller),
-                  const SizedBox(height: 16), //保留间距
-                  TextInputAccount(
-                      name: "自定义1",
-                      hintText: "请输入...",
-                      controller: controller),
-                  const SizedBox(height: 26), //保留间距
-                  TextInputAccount(
-                      name: "自定义2",
-                      hintText: "请输入...",
-                      controller: controller),
-                  const SizedBox(height: 26), //保留间距
-                  TextInputAccount(
-                      name: "自定义3",
-                      hintText: "请输入...",
-                      controller: controller),
-                  const SizedBox(height: 26), //保留间距
-                  TextInputAccount(
-                      name: "自定义3",
-                      hintText: "请输入...",
-                      controller: controller),
-                  const SizedBox(height: 26), //保留间距
-                  TextInputAccount(
-                      name: "自定义3",
-                      hintText: "请输入...",
-                      controller: controller),
-                  const SizedBox(height: 26), //保留间距
-                ],
-              )),
+                  ).paddingOnly(top: 12,bottom: 10),
+                ),
+              ])),
         ));
   }
-
-
 }
+
+/**
+ *
+ */
