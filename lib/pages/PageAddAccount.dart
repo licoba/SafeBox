@@ -20,12 +20,8 @@ class PageAddAccount extends StatefulWidget {
 class _PageAddAccountState extends State<PageAddAccount> {
   final dbHelper = DatabaseHelper.instance;
   List<Widget> _childWidgets = [];
-  List<TextEditingController> controllers = [
-    TextEditingController(),
-    TextEditingController(),
-    TextEditingController(),
-  ];
   final ScrollController _scrollController = ScrollController();
+  int itemId = 3; // 从3开始数
 
   // 初始化组件列表
   List<Widget> _buildItems() {
@@ -43,14 +39,21 @@ class _PageAddAccountState extends State<PageAddAccount> {
         ),
       ),
       TextInputAccount(
-          name: TextInputAccount.default_name,
+          id: 0,
+          name: TextInputAccount.defaultName,
           hintText: "请输入...",
           isRequired: true,
           canEditTitle: false),
       TextInputAccount(
-          name: TextInputAccount.default_account, hintText: "请输入...", canEditTitle: false),
+          id: 1,
+          name: TextInputAccount.defaultAccount,
+          hintText: "请输入...",
+          canEditTitle: false),
       TextInputAccount(
-          name: TextInputAccount.default_pwd, hintText: "请输入...", canEditTitle: false)
+          id: 2,
+          name: TextInputAccount.defaultPwd,
+          hintText: "请输入...",
+          canEditTitle: false)
     ];
 
     return items;
@@ -59,10 +62,18 @@ class _PageAddAccountState extends State<PageAddAccount> {
   // 添加一个自定义的组件
   void _addCustomWidget() {
     setState(() {
-      TextEditingController newController = TextEditingController();
-      controllers = [...controllers, newController];
-      _childWidgets.add(
-          TextInputAccount(name: "", hintText: "请输入...", canEditTitle: true));
+      _childWidgets.add(TextInputAccount(
+        id: itemId++,
+        name: "",
+        hintText: "请输入...",
+        canEditTitle: true,
+        onClickRemove: (int value) {
+          debugPrint("删除 $value 的ID的控件");
+          _removeCustomWidget(value);
+        },
+      ));
+
+      print("修改后的 $_childWidgets");
     });
 
     // 使用animateTo函数将页面滚动到底部
@@ -73,6 +84,20 @@ class _PageAddAccountState extends State<PageAddAccount> {
         curve: Curves.easeOut,
       );
     });
+  }
+
+  void _removeCustomWidget(int id) {
+    setState(() {
+      _childWidgets.removeWhere((element) => isNeedToRemove(element, id));
+      print("删除后的 $_childWidgets");
+    });
+  }
+
+  bool isNeedToRemove(Widget element, int id) {
+    if (element is TextInputAccount) {
+      if (element.id == id) return true;
+    }
+    return false;
   }
 
   void _saveAccount() {
@@ -158,7 +183,3 @@ class _PageAddAccountState extends State<PageAddAccount> {
         ));
   }
 }
-
-/**
- *
- */

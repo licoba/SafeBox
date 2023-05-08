@@ -3,24 +3,33 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 
 class TextInputAccount extends StatefulWidget {
+  int id;
   final String name;
   final String hintText;
   final bool? isRequired;
   final bool? canRemove; // 是否可以删除这个字段
   final bool? canEditTitle; // 是否可以编辑标题字段
 
-  static String default_name = "default_name";
-  static String default_account = "default_account";
-  static String default_pwd = "default_pwd";
+  static String defaultName = "default_name";
+  static String defaultAccount = "default_account";
+  static String defaultPwd = "default_pwd";
 
-  TextInputAccount({
-    super.key,
-    required this.name,
-    required this.hintText,
-    this.isRequired = false,
-    this.canRemove = false,
-    this.canEditTitle = true,
-  });
+  final void Function(int)? onClickRemove; // 点击删除的回调
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.debug}) {
+    return '输入框id:$id';
+  }
+
+  TextInputAccount(
+      {super.key,
+      required this.id,
+      required this.name,
+      this.hintText = "",
+      this.isRequired = false,
+      this.canRemove = false,
+      this.canEditTitle = true,
+      this.onClickRemove});
 
   @override
   State<StatefulWidget> createState() => _IconTextFieldState();
@@ -30,18 +39,36 @@ class TextInputAccount extends StatefulWidget {
 }
 
 class _IconTextFieldState extends State<TextInputAccount> {
-  TextEditingController _controller1 = TextEditingController();
-  TextEditingController _controller2 = TextEditingController();
+  final TextEditingController _controller1 = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
+
+  bool isDefaultField() {
+    if (widget.name == TextInputAccount.defaultName ||
+        widget.name == TextInputAccount.defaultAccount ||
+        widget.name == TextInputAccount.defaultPwd) {
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  void dispose() {
+    // 销毁 TextEditingController
+    _controller1.dispose();
+    _controller2.dispose();
+    super.dispose();
+  }
+
 
   @override
   void initState() {
-    if (widget.name == TextInputAccount.default_name) {
-      _controller1.text ="*""名称";
-    } else if (widget.name == TextInputAccount.default_account) {
+    if (widget.name == TextInputAccount.defaultName) {
+      _controller1.text = "*" "名称";
+    } else if (widget.name == TextInputAccount.defaultAccount) {
       _controller1.text = "账号";
-    } else if (widget.name == TextInputAccount.default_pwd) {
+    } else if (widget.name == TextInputAccount.defaultPwd) {
       _controller1.text = "密码";
-    } 
+    }
 
     widget.titleText = _controller1.text;
     widget.contentText = _controller2.text;
@@ -68,7 +95,7 @@ class _IconTextFieldState extends State<TextInputAccount> {
           controller: _controller1,
           decoration: const InputDecoration(
             border: InputBorder.none,
-            hintText: '请输入...',
+            hintText: '请输入名称',
           ),
         ),
         TextFormField(
@@ -78,12 +105,24 @@ class _IconTextFieldState extends State<TextInputAccount> {
               borderRadius: BorderRadius.circular(10), // 可以自定义圆角大小
             ),
             hintText: widget.hintText,
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                _controller2.clear();
-              },
-            ),
+            suffixIcon: _controller2.text.isEmpty && !isDefaultField()
+                ? IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      // _controller1.clear();
+                      // _controller2.clear();
+                      if (widget.onClickRemove != null) {
+                        widget.onClickRemove!(widget.id);
+                      }
+                    },
+                  )
+                : IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      // _controller1.clear();
+                      _controller2.clear();
+                    },
+                  ),
           ),
         ),
       ],
