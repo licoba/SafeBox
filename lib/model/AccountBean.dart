@@ -12,7 +12,8 @@ class AccountBean extends ISuspensionBean {
   String? pwd;
   List<CustomField>? customFields;
 
-  AccountBean({this.id, required this.name,this.account,this.pwd, this.customFields});
+  AccountBean(
+      {this.id, required this.name, this.account, this.pwd, this.customFields});
 
   factory AccountBean.fromJson(Map<String, dynamic> srcJson) =>
       _$AccountBeanFromJson(srcJson);
@@ -31,13 +32,16 @@ class AccountBean extends ISuspensionBean {
 
   @override
   String toString() {
-    return 'AccountBean{id: $id, customFields: $customFields}  tag：${getSuspensionTag()}';
+    return 'AccountBean{id: $id, name: $name, tag: ${getSuspensionTag()}}';
   }
 
   // 排序的索引
   @override
   String getSuspensionTag() {
-    return PinyinHelper.getPinyin(name); // 也就是名称的值
+    String tag = "#";
+    String pinyin = PinyinHelper.getPinyin(name);
+    if (pinyin.isNotEmpty) tag = pinyin[0];
+    return tag; // 也就是名称的值
   }
 }
 

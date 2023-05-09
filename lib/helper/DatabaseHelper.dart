@@ -87,10 +87,8 @@ class DatabaseHelper {
   // 读取数据列表
   Future<List<AccountBean>> accountBeans() async {
     Database db = await this.db;
-    // await deleteTable();
     final List<Map<String, dynamic>> maps = await db.query(tableName);
-    return List.generate(maps.length, (index) {
-      print("数据：${maps[index]}");
+    List<AccountBean> accountList = List.generate(maps.length, (index) {
       final id = maps[index][columnId];
       final name = maps[index][columnName];
       final account = maps[index][columnAccount];
@@ -108,5 +106,12 @@ class DatabaseHelper {
         customFields: customFields,
       );
     });
+
+    // 手动排序
+    accountList.sort((a, b) => a.getSuspensionTag().compareTo(b.getSuspensionTag())); // 按照 name 升序排序
+
+    return accountList;
   }
+
+
 }
