@@ -77,8 +77,8 @@ class _PageHomeState extends State<PageHome> {
       data: _items,
       itemCount: _items.length,
       itemBuilder: (BuildContext context, int index) => AccountItem(
-        title: _items[index].customFields?[0].content ?? "无",
-        subtitle: _items[index].customFields?[1].content ?? "无",
+        title: _items[index].name,
+        subtitle: _items[index].account ?? "无",
         onTap: () => _handleListItemTap(index),
       ),
     );

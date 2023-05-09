@@ -7,10 +7,12 @@ part 'AccountBean.g.dart';
 @JsonSerializable()
 class AccountBean extends ISuspensionBean {
   int? id;
-  String? title;
+  String name; // 必填
+  String? account;
+  String? pwd;
   List<CustomField>? customFields;
 
-  AccountBean({this.id, this.customFields});
+  AccountBean({this.id, required this.name,this.account,this.pwd, this.customFields});
 
   factory AccountBean.fromJson(Map<String, dynamic> srcJson) =>
       _$AccountBeanFromJson(srcJson);
@@ -20,6 +22,9 @@ class AccountBean extends ISuspensionBean {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'name': name,
+      'account': account,
+      'pwd': pwd,
       'customFields': customFields?.map((e) => e.toJson()).toList(),
     };
   }
@@ -32,8 +37,7 @@ class AccountBean extends ISuspensionBean {
   // 排序的索引
   @override
   String getSuspensionTag() {
-    String name = customFields?[0].content?[0] ?? "";
-    return PinyinHelper.getPinyin(name)[0]; // 也就是名称的值
+    return PinyinHelper.getPinyin(name); // 也就是名称的值
   }
 }
 

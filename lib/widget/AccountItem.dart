@@ -5,7 +5,8 @@ class AccountItem extends StatefulWidget {
   final String subtitle;
   final VoidCallback? onTap;
 
-  const AccountItem({Key? key, required this.title, required this.subtitle,  this.onTap})
+  const AccountItem(
+      {Key? key, required this.title, required this.subtitle, this.onTap})
       : super(key: key);
 
   @override
@@ -19,8 +20,8 @@ class _AccountItemState extends State<AccountItem> {
       onTap: widget.onTap,
       child: ListTile(
         title: Text(widget.title, style: const TextStyle(color: Colors.black)),
-        subtitle:
-        Text(widget.subtitle, style: const TextStyle(color: Colors.grey)),
+        subtitle: Text(widget.subtitle.isNotEmpty ? widget.subtitle : "无" ,
+            style: const TextStyle(color: Colors.grey)),
       ),
     );
   }

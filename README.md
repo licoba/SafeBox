@@ -20,3 +20,13 @@ samples, guidance on mobile development, and a full API reference.
 ## 注意
 
 - 运行项目之前需要先用命令行执行 `flutter packages pub run build_runner build`  生成中间JSON文件
+- 如果要清除macOS上App的数据，运行命令
+
+```agsl
+  rm -rf ~/Documents/safebox
+  rm -rf ~/Library/Caches/safebox
+  rm -rf /System/Volumes/Data/Users/licoba/Library/Containers/SafeBox
+  rm -rf /Users/licoba/MultiWorkSpace/flutter/SafeBox/build/macos
+  rm -rf /Users/licoba/Library/Containers/com.licoba.safebox/Data/Documentsaccount_database.db
+```
+- 然后重新点击`Run`运行

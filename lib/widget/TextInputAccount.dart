@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 class TextInputAccount extends StatefulWidget {
@@ -11,6 +9,7 @@ class TextInputAccount extends StatefulWidget {
   final bool? canEditTitle; // 是否可以编辑标题字段
   final TextEditingController controller1;
   final TextEditingController controller2;
+  final FocusNode? focusNode;
   static String defaultName = "default_name";
   static String defaultAccount = "default_account";
   static String defaultPwd = "default_pwd";
@@ -28,6 +27,7 @@ class TextInputAccount extends StatefulWidget {
       required this.name,
       required this.controller1,
       required this.controller2,
+      this.focusNode,
       this.hintText = "",
       this.isRequired = false,
       this.canRemove = false,
@@ -35,22 +35,31 @@ class TextInputAccount extends StatefulWidget {
       this.onClickRemove});
 
   @override
-  State<StatefulWidget> createState() => _IconTextFieldState();
+  State<StatefulWidget> createState() => TextInputAccountState();
 
   String titleText = "";
   String contentText = "";
-}
 
-class _IconTextFieldState extends State<TextInputAccount> {
   bool isDefaultField() {
-    if (widget.name == TextInputAccount.defaultName ||
-        widget.name == TextInputAccount.defaultAccount ||
-        widget.name == TextInputAccount.defaultPwd) {
+    if (name == TextInputAccount.defaultName ||
+        name == TextInputAccount.defaultAccount ||
+        name == TextInputAccount.defaultPwd) {
       return true;
     }
     return false;
   }
+}
 
+class TextInputAccountState extends State<TextInputAccount> {
+  final GlobalKey<FormFieldState> textInputAccountKey = GlobalKey();
+
+  void focusContent() {
+    if (widget.focusNode != null) {
+      // textInputAccountKey.currentState!.didChange("");
+      // textInputAccountKey.currentState!.validate();
+      widget.focusNode!.requestFocus();
+    }
+  }
 
   @override
   void initState() {
@@ -65,7 +74,6 @@ class _IconTextFieldState extends State<TextInputAccount> {
     widget.titleText = widget.controller1.text;
     widget.controller1.addListener(() {
       widget.titleText = widget.controller1.text;
-
     });
 
     widget.contentText = widget.controller2.text;
@@ -89,29 +97,32 @@ class _IconTextFieldState extends State<TextInputAccount> {
         ),
         TextFormField(
           controller: widget.controller2,
+          key: textInputAccountKey,
+          focusNode: widget.focusNode,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10), // 可以自定义圆角大小
             ),
             hintText: widget.hintText,
-            suffixIcon: widget.controller2.text.isEmpty && !isDefaultField()
-                ? IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      // controller1.clear();
-                      // controller2.clear();
-                      if (widget.onClickRemove != null) {
-                        widget.onClickRemove!(widget.id);
-                      }
-                    },
-                  )
-                : IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      // controller1.clear();
-                      widget.controller2.clear();
-                    },
-                  ),
+            suffixIcon:
+                widget.controller2.text.isEmpty && !widget.isDefaultField()
+                    ? IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          // controller1.clear();
+                          // controller2.clear();
+                          if (widget.onClickRemove != null) {
+                            widget.onClickRemove!(widget.id);
+                          }
+                        },
+                      )
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          // controller1.clear();
+                          widget.controller2.clear();
+                        },
+                      ),
           ),
         ),
       ],

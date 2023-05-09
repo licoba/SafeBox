@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:safebox/model/AccountBean.dart';
 import '../helper/DatabaseHelper.dart';
 import '../widget/TextInputAccount.dart';
+import '../widget/ToastUtil.dart';
 
 // 添加账号页面
 @immutable
@@ -22,24 +23,16 @@ class _PageAddAccountState extends State<PageAddAccount> {
   List<Widget> _childWidgets = [];
   final ScrollController _scrollController = ScrollController();
   int itemId = 3; // 从3开始数
+  final _node1 = FocusNode();
+  final GlobalKey<TextInputAccountState> nameFieldKey = GlobalKey();
 
   // 初始化组件列表
   List<Widget> _buildItems() {
-    List<Widget> items = [
-      ElevatedButton(
-        onPressed: () async {
-          print(await dbHelper.accountBeans());
-        },
-        child: const Text(
-          '查询结果',
-          style: TextStyle(
-            fontSize: 16,
-            letterSpacing: 4,
-          ),
-        ),
-      ),
+    List<TextInputAccount> items = [
       TextInputAccount(
           id: 0,
+          key: nameFieldKey,
+          focusNode: _node1,
           name: TextInputAccount.defaultName,
           hintText: "请输入...",
           isRequired: true,
@@ -109,14 +102,33 @@ class _PageAddAccountState extends State<PageAddAccount> {
   }
 
   void _saveAccount() {
+    String name = (_childWidgets[0] as TextInputAccount).contentText;
+    String account = (_childWidgets[1] as TextInputAccount).contentText;
+    String pwd = (_childWidgets[2] as TextInputAccount).contentText;
+
+    if (name.isEmpty) {
+      ToastUtil.showToast("请填写账号");
+      nameFieldKey.currentState!.focusContent();
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollController.animateTo(
+          _scrollController.position.minScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+      return;
+    }
     List<CustomField> customFields = [];
     for (var element in _childWidgets) {
       if (element is TextInputAccount) {
-        customFields.add(
-            CustomField(name: element.titleText, content: element.contentText));
+        if (!element.isDefaultField()) {
+          customFields.add(CustomField(
+              name: element.titleText, content: element.contentText));
+        }
       }
     }
-    AccountBean accountBean = AccountBean(customFields: customFields);
+    AccountBean accountBean = AccountBean(
+        name: name, account: account, pwd: pwd, customFields: customFields);
     dbHelper.insert(accountBean);
   }
 
@@ -186,6 +198,18 @@ class _PageAddAccountState extends State<PageAddAccount> {
                       '添加更多字段',
                     ),
                   ).paddingOnly(top: 12, bottom: 10),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    print(await dbHelper.accountBeans());
+                  },
+                  child: const Text(
+                    '查询结果',
+                    style: TextStyle(
+                      fontSize: 16,
+                      letterSpacing: 4,
+                    ),
+                  ),
                 ),
               ])),
         ));
