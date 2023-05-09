@@ -43,16 +43,22 @@ class _PageAddAccountState extends State<PageAddAccount> {
           name: TextInputAccount.defaultName,
           hintText: "请输入...",
           isRequired: true,
+          controller1: TextEditingController(),
+          controller2: TextEditingController(),
           canEditTitle: false),
       TextInputAccount(
           id: 1,
           name: TextInputAccount.defaultAccount,
           hintText: "请输入...",
+          controller1: TextEditingController(),
+          controller2: TextEditingController(),
           canEditTitle: false),
       TextInputAccount(
           id: 2,
           name: TextInputAccount.defaultPwd,
           hintText: "请输入...",
+          controller1: TextEditingController(),
+          controller2: TextEditingController(),
           canEditTitle: false)
     ];
 
@@ -67,6 +73,8 @@ class _PageAddAccountState extends State<PageAddAccount> {
         name: "",
         hintText: "请输入...",
         canEditTitle: true,
+        controller1: TextEditingController(),
+        controller2: TextEditingController(),
         onClickRemove: (int value) {
           debugPrint("删除 $value 的ID的控件");
           _removeCustomWidget(value);
