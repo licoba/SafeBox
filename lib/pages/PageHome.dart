@@ -5,6 +5,7 @@ import 'package:safebox/routes/APPRouter.dart';
 import '../helper/DatabaseHelper.dart';
 import '../widget/AccountItem.dart';
 import '../widget/ExpandableFab.dart';
+import 'package:azlistview/azlistview.dart';
 
 // 首页
 @immutable
@@ -41,6 +42,7 @@ class _PageHomeState extends State<PageHome> {
   List<AccountBean> _items = [];
   bool _loading = false;
 
+  // 数据源
   void _jumpToAddAccount() {
     Get.toNamed(APPRouter.addAccountPage);
   }
@@ -70,6 +72,30 @@ class _PageHomeState extends State<PageHome> {
     print('Item $index 点击了');
   }
 
+  Widget _buildListView() {
+    return AzListView(
+      data: _items,
+      itemCount: _items.length,
+      itemBuilder: (BuildContext context, int index) => AccountItem(
+        title: _items[index].customFields?[0].content ?? "无",
+        subtitle: _items[index].customFields?[1].content ?? "无",
+        onTap: () => _handleListItemTap(index),
+      ),
+    );
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      itemCount: _items.length,
+      itemBuilder: (context, index) {
+        return AccountItem(
+          title: _items[index].customFields?[0].content ?? "无",
+          subtitle: _items[index].customFields?[1].content ?? "无",
+          onTap: () => _handleListItemTap(index),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,17 +106,7 @@ class _PageHomeState extends State<PageHome> {
             onRefresh: _handleRefresh,
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    itemCount: _items.length,
-                    itemBuilder: (context, index) {
-                      return AccountItem(
-                        title: _items[index].customFields?[0].content ?? "无",
-                        subtitle: _items[index].customFields?[1].content ?? "无",
-                        onTap: () => _handleListItemTap(index),
-                      );
-                    },
-                  )),
+                : _buildListView()),
         floatingActionButton: FloatingActionButton(
           onPressed: () => print("FloatingActionButton"),
           child: IconButton(
