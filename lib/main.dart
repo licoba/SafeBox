@@ -6,6 +6,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'helper/DatabaseHelper.dart';
 import 'routes/APPRouter.dart';
+import 'theme/APPThemeSettings.dart';
 import 'widget/ExpandableFab.dart';
 
 void main() async {
@@ -27,7 +28,8 @@ class MyApp extends StatelessWidget {
       key: navigatorKey,
       title: '保险箱',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(),
+      theme: APPThemeSettings.instance.themeData ,
+      // theme: ThemeData.light() ,
       // darkTheme: APPThemeSettings.instance.darkThemeData,
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
       // initialRoute: "/MyHomePage",

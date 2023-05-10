@@ -33,7 +33,7 @@ class AccountBean extends ISuspensionBean {
 
   @override
   String toString() {
-    return 'AccountBean{id: $id, name: $name, tag: ${getSuspensionTag()}}';
+    return 'AccountBean{id: $id, name: $name,account: $account,pwd: $pwd, tag: ${getSuspensionTag()}}';
   }
 
   // 排序的索引
