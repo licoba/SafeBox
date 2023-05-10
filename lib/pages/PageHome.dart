@@ -226,7 +226,7 @@ class CustomBottomSheet extends StatelessWidget {
               child: ListView.builder(
                   shrinkWrap: true,
                   physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: user.customFields?.length ?? 0 + 2,
+                  itemCount: (user.customFields?.length ?? 0) + 2,
                   itemBuilder: (context, index) {
                     if (index == 0 || index == 1) {
                       String s1 = index == 0 ? "账号" : "密码";
