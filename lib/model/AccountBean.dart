@@ -42,6 +42,7 @@ class AccountBean extends ISuspensionBean {
     String tag = "#";
     String pinyin = PinyinHelper.getPinyin(name);
     if (pinyin.isNotEmpty) tag = pinyin[0].toUpperCase();
+    if(tag.isNum) tag="#";
     return tag; // 也就是名称的值
   }
 }
