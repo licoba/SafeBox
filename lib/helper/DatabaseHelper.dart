@@ -42,7 +42,7 @@ class DatabaseHelper {
     String path = "${directory.path}/$databaseName";
     debugPrint("=========数据库路径=========> $path");
     var carsDatabase =
-    await openDatabase(path, version: 1, onCreate: _createDb);
+        await openDatabase(path, version: 1, onCreate: _createDb);
     return carsDatabase;
   }
 
@@ -68,7 +68,7 @@ class DatabaseHelper {
       columnAccount: bean.account,
       columnPwd: bean.pwd,
       columnCustomFields:
-      json.encode(bean.customFields?.map((e) => e.toJson()).toList()),
+          json.encode(bean.customFields?.map((e) => e.toJson()).toList()),
     };
     return await db.insert(
       tableName,
@@ -83,7 +83,6 @@ class DatabaseHelper {
     await db.close();
   }
 
-
   // 读取数据列表
   Future<List<AccountBean>> accountBeans() async {
     Database db = await this.db;
@@ -95,9 +94,9 @@ class DatabaseHelper {
       final pwd = maps[index][columnPwd];
       final customFieldsJson = maps[index][columnCustomFields];
       final customFieldsMapList =
-      json.decode(customFieldsJson ?? '') as List<dynamic>?;
+          json.decode(customFieldsJson ?? '') as List<dynamic>?;
       final customFields =
-      customFieldsMapList?.map((e) => CustomField.fromJson(e)).toList();
+          customFieldsMapList?.map((e) => CustomField.fromJson(e)).toList();
       return AccountBean(
         id: id,
         name: name,
@@ -108,10 +107,47 @@ class DatabaseHelper {
     });
 
     // 手动排序
-    accountList.sort((a, b) => a.getSuspensionTag().compareTo(b.getSuspensionTag())); // 按照 name 升序排序
+    accountList.sort((x, y) {
+      String a = x.getSuspensionTag().toLowerCase();
+      String b = y.getSuspensionTag().toLowerCase();
+      String firstChar1 = a ;
+      String firstChar2 = b;
+
+      // 优先考虑字母
+      if (firstChar1.contains(RegExp(r'[A-Za-z]')) &&
+          !firstChar2.contains(RegExp(r'[A-Za-z]'))) {
+        return -1;
+      } else if (!firstChar1.contains(RegExp(r'[A-Za-z]')) &&
+          firstChar2.contains(RegExp(r'[A-Za-z]'))) {
+        return 1;
+      }
+
+      // 其次考虑数字
+      if (firstChar1.contains(RegExp(r'[0-9]')) &&
+          !firstChar2.contains(RegExp(r'[0-9]'))) {
+        return -1;
+      } else if (!firstChar1.contains(RegExp(r'[0-9]')) &&
+          firstChar2.contains(RegExp(r'[0-9]'))) {
+        return 1;
+      }
+
+      // 最后考虑特殊字符
+      if (!firstChar1.contains(RegExp(r'[A-Za-z0-9]')) &&
+          !firstChar2.contains(RegExp(r'[A-Za-z0-9]'))) {
+        return firstChar1.compareTo(firstChar2);
+      } else if (!firstChar1.contains(RegExp(r'[A-Za-z0-9]'))) {
+        return 1;
+      } else if (!firstChar2.contains(RegExp(r'[A-Za-z0-9]'))) {
+        return -1;
+      }
+
+      // 如果首字母相同，则按照原字符串进行排序
+      return a.compareTo(b);
+    });
 
     return accountList;
   }
+
 
 
 }

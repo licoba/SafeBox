@@ -69,7 +69,8 @@ class _PageHomeState extends State<PageHome> {
   }
 
   void _handleListItemTap(int index) {
-    print('Item $index 点击了');
+
+    print('Item $index 点击了 ${_items[index]}');
   }
 
   Widget _buildListView() {

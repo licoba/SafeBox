@@ -1,4 +1,5 @@
 import 'package:azlistview/azlistview.dart';
+import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:lpinyin/lpinyin.dart';
 
@@ -40,7 +41,7 @@ class AccountBean extends ISuspensionBean {
   String getSuspensionTag() {
     String tag = "#";
     String pinyin = PinyinHelper.getPinyin(name);
-    if (pinyin.isNotEmpty) tag = pinyin[0];
+    if (pinyin.isNotEmpty) tag = pinyin[0].toUpperCase();
     return tag; // 也就是名称的值
   }
 }
