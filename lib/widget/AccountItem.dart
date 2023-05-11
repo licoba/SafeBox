@@ -4,9 +4,10 @@ class AccountItem extends StatefulWidget {
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
+  final VoidCallback? onLongTap;
 
   const AccountItem(
-      {Key? key, required this.title, required this.subtitle, this.onTap})
+      {Key? key, required this.title, required this.subtitle, this.onTap,this.onLongTap})
       : super(key: key);
 
   @override
@@ -18,6 +19,7 @@ class _AccountItemState extends State<AccountItem> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: widget.onTap,
+      onLongPress: widget.onLongTap,
       child: ListTile(
         title: Text(widget.title, style: const TextStyle(color: Colors.black)),
         subtitle: Text(widget.subtitle.isNotEmpty ? widget.subtitle : "无" ,

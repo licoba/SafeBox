@@ -38,8 +38,9 @@ class PageHome extends StatefulWidget {
   }
 }
 
+final dbHelper = DatabaseHelper.instance;
+
 class _PageHomeState extends State<PageHome> {
-  final dbHelper = DatabaseHelper.instance;
   List<AccountBean> _items = [];
   bool _loading = false;
 
@@ -70,7 +71,7 @@ class _PageHomeState extends State<PageHome> {
   }
 
   void _handleListItemTap(int index) {
-    print('Item $index 点击了 ${_items[index]}');
+    debugPrint('Item $index 点击了 ${_items[index]}');
     showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -84,6 +85,21 @@ class _PageHomeState extends State<PageHome> {
             ));
   }
 
+  void _handleListItemLongTap(int index) {
+    debugPrint('Item $index 长按了 ${_items[index]}');
+    showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.0),
+            topRight: Radius.circular(16.0),
+          ),
+        ),
+        builder: (BuildContext context) => BottomMenuSheet(
+              user: _items[index],
+            ));
+  }
+
   Widget _buildListView() {
     return AzListView(
       data: _items,
@@ -92,19 +108,8 @@ class _PageHomeState extends State<PageHome> {
         title: _items[index].name,
         subtitle: _items[index].account ?? "无",
         onTap: () => _handleListItemTap(index),
+        onLongTap: () => _handleListItemLongTap(index),
       ),
-    );
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      itemCount: _items.length,
-      itemBuilder: (context, index) {
-        return AccountItem(
-          title: _items[index].customFields?[0].content ?? "无",
-          subtitle: _items[index].customFields?[1].content ?? "无",
-          onTap: () => _handleListItemTap(index),
-        );
-      },
     );
   }
 
@@ -196,6 +201,7 @@ class BottomText extends StatelessWidget {
     );
   }
 }
+
 class CustomBottomSheet extends StatelessWidget {
   final AccountBean user;
 
@@ -263,5 +269,119 @@ class CustomBottomSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class BottomMenuSheet extends StatelessWidget {
+  final AccountBean user;
+
+  const BottomMenuSheet({super.key, required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    double menuHeight = 50;
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // 垂直方向居中对齐
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: 88,
+              height: 5,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: APPThemeSettings.myBgColorMap[200],
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: menuHeight,
+              child: ListTile(
+                leading: const Icon(Icons.favorite),
+                title: const Text('加入收藏'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+            const Divider(), // 分割线
+            SizedBox(
+                height: menuHeight,
+                child: ListTile(
+                  leading: const Icon(Icons.add_to_photos),
+                  title: const Text('复制并新建'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                )),
+            const Divider(), // 分割线
+            SizedBox(
+                height: menuHeight,
+                child: ListTile(
+                  leading: const Icon(Icons.content_copy),
+                  title: const Text('复制为文本'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                )),
+            const Divider(), // 分割线
+            SizedBox(
+                height: menuHeight,
+                child: ListTile(
+                  leading: Icon(Icons.delete, color: Colors.red),
+                  title: Text('删除此账号', style: TextStyle(color: Colors.red)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    showDeleteDialog(context, user);
+                  },
+                )),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void showDeleteDialog(BuildContext context, AccountBean bean) async {
+  bool confirm = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        title: const Text('删除确认',
+            style: TextStyle(color: Colors.black87, fontSize: 18)),
+        content: Text("您确定要删除账号\"${bean.name}\"？",
+            style: TextStyle(color: APPThemeSettings.myBgColorMap[700])),
+        actions: <Widget>[
+          TextButton(
+            child: Text('取消',
+                style: TextStyle(color: APPThemeSettings.myBgColorMap[400])),
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+          TextButton(
+            child: const Text('删除', style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirm == true) {
+    int result = await dbHelper.delete(bean);
+    debugPrint('删除 $bean 操作已完成，结果：$result');
   }
 }

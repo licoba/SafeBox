@@ -77,6 +77,14 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> delete(AccountBean bean) async {
+    Database db = await this.db;
+    debugPrint("删除账号 $bean");
+    // 将 bean 对象转换成 Map 类型，以便将其存储到数据库中
+    return await db.delete(tableName, where: 'id = ?', whereArgs: [bean.id]);
+  }
+
+  // 删除整个表
   Future<void> deleteTable() async {
     Database db = await this.db;
     await db.execute('DROP TABLE IF EXISTS $tableName');
@@ -110,7 +118,7 @@ class DatabaseHelper {
     accountList.sort((x, y) {
       String a = x.getSuspensionTag().toLowerCase();
       String b = y.getSuspensionTag().toLowerCase();
-      String firstChar1 = a ;
+      String firstChar1 = a;
       String firstChar2 = b;
 
       // 优先考虑字母
@@ -147,7 +155,4 @@ class DatabaseHelper {
 
     return accountList;
   }
-
-
-
 }
