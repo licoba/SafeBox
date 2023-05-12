@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:safebox/model/AccountBean.dart';
 import 'package:safebox/routes/APPRouter.dart';
 import 'package:safebox/theme/APPThemeSettings.dart';
+import 'package:safebox/utils/UIUtils.dart';
 import '../helper/DatabaseHelper.dart';
 import '../widget/AccountItem.dart';
 import '../widget/ExpandableFab.dart';
@@ -44,9 +45,9 @@ class _PageHomeState extends State<PageHome> {
   List<AccountBean> _items = [];
   bool _loading = false;
 
-  // 数据源
-  void _jumpToAddAccount() {
-    Get.toNamed(APPRouter.addAccountPage);
+  void jumpToAddAccount(AccountBean? accountBean) {
+    debugPrint("去添加账号页面 $accountBean");
+    Get.toNamed(APPRouter.addAccountPage, arguments: accountBean);
   }
 
   @override
@@ -56,12 +57,11 @@ class _PageHomeState extends State<PageHome> {
   }
 
   Future<void> _loadData() async {
-    setState(() => _loading = true);
+    // setState(() => _loading = true);
     // 模拟异步加载数据
     List<AccountBean> data = await dbHelper.accountBeans();
-
     setState(() {
-      _loading = false;
+      // _loading = false;
       _items = data;
     });
   }
@@ -80,13 +80,15 @@ class _PageHomeState extends State<PageHome> {
             topRight: Radius.circular(16.0),
           ),
         ),
-        builder: (BuildContext context) => CustomBottomSheet(
+        builder: (BuildContext context) =>
+            CustomBottomSheet(
               user: _items[index],
             ));
   }
 
   void _handleListItemLongTap(int index) {
     debugPrint('Item $index 长按了 ${_items[index]}');
+    AccountBean bean = _items[index];
     showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -95,21 +97,74 @@ class _PageHomeState extends State<PageHome> {
             topRight: Radius.circular(16.0),
           ),
         ),
-        builder: (BuildContext context) => BottomMenuSheet(
-              user: _items[index],
+        builder: (BuildContext context) =>
+            BottomMenuSheet(
+              user: bean,
+              onConfirmDelete: () {
+                showDeleteDialog(context, bean);
+              },
+              onTapCopAndNew: () {
+                jumpToAddAccount(bean);
+              },
             ));
+  }
+
+
+  Future<void> deleteAccount(AccountBean bean) async {
+    debugPrint('删除账号 $bean');
+    int result = await dbHelper.delete(bean);
+    debugPrint('删除 $bean 操作已完成，结果：$result');
+    if (context.mounted) UIUtils.showSuccessBar(context, "账号已删除");
+    _loadData();
+  }
+
+  void showDeleteDialog(BuildContext context, AccountBean bean) async {
+    bool confirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          title: const Text('删除确认',
+              style: TextStyle(color: Colors.black87, fontSize: 18)),
+          content: Text("您确定要删除账号\"${bean.name}\"？",
+              style: TextStyle(color: APPThemeSettings.myBgColorMap[700])),
+          actions: <Widget>[
+            TextButton(
+              child: Text('取消',
+                  style: TextStyle(color: APPThemeSettings.myBgColorMap[400])),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text('删除', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      deleteAccount(bean);
+    }
   }
 
   Widget _buildListView() {
     return AzListView(
       data: _items,
       itemCount: _items.length,
-      itemBuilder: (BuildContext context, int index) => AccountItem(
-        title: _items[index].name,
-        subtitle: _items[index].account ?? "无",
-        onTap: () => _handleListItemTap(index),
-        onLongTap: () => _handleListItemLongTap(index),
-      ),
+      itemBuilder: (BuildContext context, int index) =>
+          AccountItem(
+            title: _items[index].name,
+            subtitle: _items[index].account ?? "无",
+            onTap: () => _handleListItemTap(index),
+            onLongTap: () => _handleListItemLongTap(index),
+          ),
     );
   }
 
@@ -128,34 +183,27 @@ class _PageHomeState extends State<PageHome> {
           onPressed: () => print("FloatingActionButton"),
           child: IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () => _jumpToAddAccount()),
+              onPressed: () => jumpToAddAccount(null)),
         )
-        // floatingActionButton: ExpandableFab(
-        //   distance: 112.0,
-        //   children: [
-        //     ActionButton(
-        //       onPressed: () => _showAction(context, 0),
-        //       icon: const Icon(Icons.format_size),
-        //     ),
-        //     ActionButton(
-        //       onPressed: () => _showAction(context, 1),
-        //       icon: const Icon(Icons.insert_photo),
-        //     ),
-        //     ActionButton(
-        //       onPressed: () => _showAction(context, 2),
-        //       icon: const Icon(Icons.videocam),
-        //     ),
-        //   ],
-        // ),
-        );
+      // floatingActionButton: ExpandableFab(
+      //   distance: 112.0,
+      //   children: [
+      //     ActionButton(
+      //       onPressed: () => _showAction(context, 0),
+      //       icon: const Icon(Icons.format_size),
+      //     ),
+      //     ActionButton(
+      //       onPressed: () => _showAction(context, 1),
+      //       icon: const Icon(Icons.insert_photo),
+      //     ),
+      //     ActionButton(
+      //       onPressed: () => _showAction(context, 2),
+      //       icon: const Icon(Icons.videocam),
+      //     ),
+      //   ],
+      // ),
+    );
   }
-}
-
-class User {
-  final String name;
-  final String email;
-
-  const User({required this.name, required this.email});
 }
 
 class TopText extends StatelessWidget {
@@ -205,7 +253,7 @@ class BottomText extends StatelessWidget {
 class CustomBottomSheet extends StatelessWidget {
   final AccountBean user;
 
-  const CustomBottomSheet({required this.user});
+  const CustomBottomSheet({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +261,10 @@ class CustomBottomSheet extends StatelessWidget {
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: Container(
         color: Colors.white,
-        height: MediaQuery.of(context).size.height * 0.8,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height * 0.8,
         child: Column(
           children: [
             Container(
@@ -275,7 +326,11 @@ class CustomBottomSheet extends StatelessWidget {
 class BottomMenuSheet extends StatelessWidget {
   final AccountBean user;
 
-  const BottomMenuSheet({super.key, required this.user});
+  const BottomMenuSheet(
+      {super.key, required this.user, this.onConfirmDelete, this.onTapCopAndNew});
+
+  final VoidCallback? onConfirmDelete;
+  final VoidCallback? onTapCopAndNew;
 
   @override
   Widget build(BuildContext context) {
@@ -318,6 +373,7 @@ class BottomMenuSheet extends StatelessWidget {
                   title: const Text('复制并新建'),
                   onTap: () {
                     Navigator.pop(context);
+                    onTapCopAndNew?.call();
                   },
                 )),
             const Divider(), // 分割线
@@ -334,11 +390,12 @@ class BottomMenuSheet extends StatelessWidget {
             SizedBox(
                 height: menuHeight,
                 child: ListTile(
-                  leading: Icon(Icons.delete, color: Colors.red),
-                  title: Text('删除此账号', style: TextStyle(color: Colors.red)),
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title:
+                  const Text('删除此账号', style: TextStyle(color: Colors.red)),
                   onTap: () {
                     Navigator.pop(context);
-                    showDeleteDialog(context, user);
+                    onConfirmDelete?.call();
                   },
                 )),
             const SizedBox(height: 20),
@@ -346,42 +403,5 @@ class BottomMenuSheet extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-void showDeleteDialog(BuildContext context, AccountBean bean) async {
-  bool confirm = await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        title: const Text('删除确认',
-            style: TextStyle(color: Colors.black87, fontSize: 18)),
-        content: Text("您确定要删除账号\"${bean.name}\"？",
-            style: TextStyle(color: APPThemeSettings.myBgColorMap[700])),
-        actions: <Widget>[
-          TextButton(
-            child: Text('取消',
-                style: TextStyle(color: APPThemeSettings.myBgColorMap[400])),
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-          ),
-          TextButton(
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-          ),
-        ],
-      );
-    },
-  );
-
-  if (confirm == true) {
-    int result = await dbHelper.delete(bean);
-    debugPrint('删除 $bean 操作已完成，结果：$result');
   }
 }

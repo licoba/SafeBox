@@ -10,7 +10,9 @@ import '../widget/ToastUtil.dart';
 // 添加账号页面
 @immutable
 class PageAddAccount extends StatefulWidget {
-  const PageAddAccount({super.key});
+    AccountBean? accountBean = Get.arguments;
+
+  PageAddAccount({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -19,6 +21,8 @@ class PageAddAccount extends StatefulWidget {
 }
 
 class _PageAddAccountState extends State<PageAddAccount> {
+
+
   final dbHelper = DatabaseHelper.instance;
   List<Widget> _childWidgets = [];
   final ScrollController _scrollController = ScrollController();
@@ -107,7 +111,7 @@ class _PageAddAccountState extends State<PageAddAccount> {
     String pwd = (_childWidgets[2] as TextInputAccount).contentText;
 
     if (name.isEmpty) {
-      ToastUtil.showToast("请填写账号");
+      ToastUtil.showToast("请输入账号名称");
       nameFieldKey.currentState!.focusContent();
       Future.delayed(const Duration(milliseconds: 100), () {
         _scrollController.animateTo(
@@ -130,6 +134,7 @@ class _PageAddAccountState extends State<PageAddAccount> {
     AccountBean accountBean = AccountBean(
         name: name, account: account, pwd: pwd, customFields: customFields);
     dbHelper.insert(accountBean);
+    
   }
 
   Future<void> getAllResults() async {
@@ -144,6 +149,10 @@ class _PageAddAccountState extends State<PageAddAccount> {
 
   @override
   Widget build(BuildContext context) {
+
+    dynamic arguments = ModalRoute.of(context)!.settings.arguments;
+    AccountBean? bean = arguments as AccountBean?;
+    debugPrint("接收到的参数：$bean");
     return Scaffold(
         appBar: AppBar(
           title: const Text('添加新账号'),
@@ -199,18 +208,18 @@ class _PageAddAccountState extends State<PageAddAccount> {
                     ),
                   ).paddingOnly(top: 12, bottom: 10),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    print(await dbHelper.accountBeans());
-                  },
-                  child: const Text(
-                    '查询结果',
-                    style: TextStyle(
-                      fontSize: 16,
-                      letterSpacing: 4,
-                    ),
-                  ),
-                ),
+                // ElevatedButton(
+                //   onPressed: () async {
+                //     print(await dbHelper.accountBeans());
+                //   },
+                //   child: const Text(
+                //     '查询结果',
+                //     style: TextStyle(
+                //       fontSize: 16,
+                //       letterSpacing: 4,
+                //     ),
+                //   ),
+                // ),
               ])),
         ));
   }

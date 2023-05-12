@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart';
@@ -13,22 +14,28 @@ void main() async {
   // Avoid errors caused by flutter upgrade.
   // Importing 'package:flutter/widgets.dart' is required.
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 ///全局
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
+  //Warning: Don't arbitrarily adjust the position of calling the BotToastInit function
+  final botToastBuilder = BotToastInit(); //1. call BotToastInit
   @override
   Widget build(BuildContext context) {
     final app = GetMaterialApp(
       key: navigatorKey,
       title: '保险箱',
+      builder: (context, child) {
+        child = botToastBuilder(context, child);
+        return child;
+      },
       debugShowCheckedModeBanner: false,
-      theme: APPThemeSettings.instance.themeData ,
+      theme: APPThemeSettings.instance.themeData,
       // theme: ThemeData.light() ,
       // darkTheme: APPThemeSettings.instance.darkThemeData,
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
