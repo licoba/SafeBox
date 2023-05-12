@@ -5,6 +5,58 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safebox/theme/APPThemeSettings.dart';
 
 class ToastUtil {
+
+  static void showSuccess(String message) {
+    debugPrint("showToast $message");
+    int seconds = 1;
+    bool crossPage = true;
+    bool clickClose = false;
+    bool ignoreContentClick = false;
+    bool onlyOne = true;
+    int backgroundColor = 0x00000000;
+    int animationMilliseconds = 200;
+    int animationReverseMilliseconds = 200;
+    BackButtonBehavior backButtonBehavior = BackButtonBehavior.none;
+    BotToast.showText(text: message);
+
+    BotToast.showCustomText(
+      duration: Duration(seconds: seconds),
+      onlyOne: onlyOne,
+      clickClose: clickClose,
+      crossPage: crossPage,
+      ignoreContentClick: ignoreContentClick,
+      backgroundColor: Color(backgroundColor),
+      backButtonBehavior: backButtonBehavior,
+      animationDuration: Duration(milliseconds: animationMilliseconds),
+      animationReverseDuration:
+      Duration(milliseconds: animationReverseMilliseconds),
+      toastBuilder: (_) => Align(
+        alignment: const Alignment(0, 0.8),
+        child:  Card(
+          elevation: 4.0,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              IconButton(
+                  icon: const Icon(
+                    Icons.check_circle,
+                    color:  Colors.green,
+                  ),
+                  onPressed: () {
+
+                  }),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(message),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
   static void showToast(String message) {
     debugPrint("showToast $message");
     int seconds = 1;
@@ -36,16 +88,8 @@ class ToastUtil {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              IconButton(
-                  icon: const Icon(
-                    Icons.add_reaction,
-                    color:  Colors.redAccent,
-                  ),
-                  onPressed: () {
-
-                  }),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 10),
                 child: Text(message),
               ),
             ],

@@ -3,10 +3,9 @@ import 'package:get/get.dart';
 import 'package:safebox/model/AccountBean.dart';
 import 'package:safebox/routes/APPRouter.dart';
 import 'package:safebox/theme/APPThemeSettings.dart';
-import 'package:safebox/utils/UIUtils.dart';
-import '../helper/DatabaseHelper.dart';
+import '../controllers/HomeController.dart';
+import '../utils/UIUtils.dart';
 import '../widget/AccountItem.dart';
-import '../widget/ExpandableFab.dart';
 import 'package:azlistview/azlistview.dart';
 
 // 首页
@@ -39,39 +38,17 @@ class PageHome extends StatefulWidget {
   }
 }
 
-final dbHelper = DatabaseHelper.instance;
-
 class _PageHomeState extends State<PageHome> {
-  List<AccountBean> _items = [];
-  bool _loading = false;
+  final HomeController homeController = Get.put(HomeController());
+
 
   void jumpToAddAccount(AccountBean? accountBean) {
     debugPrint("去添加账号页面 $accountBean");
     Get.toNamed(APPRouter.addAccountPage, arguments: accountBean);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    // setState(() => _loading = true);
-    // 模拟异步加载数据
-    List<AccountBean> data = await dbHelper.accountBeans();
-    setState(() {
-      // _loading = false;
-      _items = data;
-    });
-  }
-
-  Future<void> _handleRefresh() async {
-    await _loadData();
-  }
-
   void _handleListItemTap(int index) {
-    debugPrint('Item $index 点击了 ${_items[index]}');
+    debugPrint('Item $index 点击了 ${homeController.accountList[index]}');
     showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -80,15 +57,14 @@ class _PageHomeState extends State<PageHome> {
             topRight: Radius.circular(16.0),
           ),
         ),
-        builder: (BuildContext context) =>
-            CustomBottomSheet(
-              user: _items[index],
+        builder: (BuildContext context) => AccountDetailSheet(
+              user: homeController.accountList[index],
             ));
   }
 
   void _handleListItemLongTap(int index) {
-    debugPrint('Item $index 长按了 ${_items[index]}');
-    AccountBean bean = _items[index];
+    debugPrint('Item $index 长按了 ${homeController.accountList[index]}');
+    AccountBean bean = homeController.accountList[index];
     showModalBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -97,8 +73,7 @@ class _PageHomeState extends State<PageHome> {
             topRight: Radius.circular(16.0),
           ),
         ),
-        builder: (BuildContext context) =>
-            BottomMenuSheet(
+        builder: (BuildContext context) => BottomMenuSheet(
               user: bean,
               onConfirmDelete: () {
                 showDeleteDialog(context, bean);
@@ -107,15 +82,6 @@ class _PageHomeState extends State<PageHome> {
                 jumpToAddAccount(bean);
               },
             ));
-  }
-
-
-  Future<void> deleteAccount(AccountBean bean) async {
-    debugPrint('删除账号 $bean');
-    int result = await dbHelper.delete(bean);
-    debugPrint('删除 $bean 操作已完成，结果：$result');
-    if (context.mounted) UIUtils.showSuccessBar(context, "账号已删除");
-    _loadData();
   }
 
   void showDeleteDialog(BuildContext context, AccountBean bean) async {
@@ -150,21 +116,20 @@ class _PageHomeState extends State<PageHome> {
     );
 
     if (confirm == true) {
-      deleteAccount(bean);
+      homeController.deleteAccount(bean);
     }
   }
 
   Widget _buildListView() {
     return AzListView(
-      data: _items,
-      itemCount: _items.length,
-      itemBuilder: (BuildContext context, int index) =>
-          AccountItem(
-            title: _items[index].name,
-            subtitle: _items[index].account ?? "无",
-            onTap: () => _handleListItemTap(index),
-            onLongTap: () => _handleListItemLongTap(index),
-          ),
+      data: homeController.accountList,
+      itemCount: homeController.accountList.length,
+      itemBuilder: (BuildContext context, int index) => AccountItem(
+        title: homeController.accountList[index].name,
+        subtitle: homeController.accountList[index].account ?? "无",
+        onTap: () => _handleListItemTap(index),
+        onLongTap: () => _handleListItemLongTap(index),
+      ),
     );
   }
 
@@ -174,35 +139,13 @@ class _PageHomeState extends State<PageHome> {
         appBar: AppBar(
           title: const Text('保险箱'),
         ),
-        body: RefreshIndicator(
-            onRefresh: _handleRefresh,
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _buildListView()),
+        body: Obx(() => _buildListView()),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => print("FloatingActionButton"),
+          onPressed: () => debugPrint("FloatingActionButton"),
           child: IconButton(
               icon: const Icon(Icons.add),
               onPressed: () => jumpToAddAccount(null)),
-        )
-      // floatingActionButton: ExpandableFab(
-      //   distance: 112.0,
-      //   children: [
-      //     ActionButton(
-      //       onPressed: () => _showAction(context, 0),
-      //       icon: const Icon(Icons.format_size),
-      //     ),
-      //     ActionButton(
-      //       onPressed: () => _showAction(context, 1),
-      //       icon: const Icon(Icons.insert_photo),
-      //     ),
-      //     ActionButton(
-      //       onPressed: () => _showAction(context, 2),
-      //       icon: const Icon(Icons.videocam),
-      //     ),
-      //   ],
-      // ),
-    );
+        ));
   }
 }
 
@@ -223,7 +166,7 @@ class TopText extends StatelessWidget {
     }
     return Text(
       textStr,
-      style: TextStyle(fontSize: 16, color: APPThemeSettings.myBgColorMap[600]),
+      style: TextStyle(fontSize: 14, color: APPThemeSettings.myBgColorMap[400]),
     );
   }
 }
@@ -250,10 +193,11 @@ class BottomText extends StatelessWidget {
   }
 }
 
-class CustomBottomSheet extends StatelessWidget {
+// 账号详情弹窗
+class AccountDetailSheet extends StatelessWidget {
   final AccountBean user;
 
-  const CustomBottomSheet({super.key, required this.user});
+  const AccountDetailSheet({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -261,10 +205,7 @@ class CustomBottomSheet extends StatelessWidget {
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       child: Container(
         color: Colors.white,
-        height: MediaQuery
-            .of(context)
-            .size
-            .height * 0.8,
+        height: MediaQuery.of(context).size.height * 0.8,
         child: Column(
           children: [
             Container(
@@ -327,7 +268,10 @@ class BottomMenuSheet extends StatelessWidget {
   final AccountBean user;
 
   const BottomMenuSheet(
-      {super.key, required this.user, this.onConfirmDelete, this.onTapCopAndNew});
+      {super.key,
+      required this.user,
+      this.onConfirmDelete,
+      this.onTapCopAndNew});
 
   final VoidCallback? onConfirmDelete;
   final VoidCallback? onTapCopAndNew;
@@ -392,7 +336,7 @@ class BottomMenuSheet extends StatelessWidget {
                 child: ListTile(
                   leading: const Icon(Icons.delete, color: Colors.red),
                   title:
-                  const Text('删除此账号', style: TextStyle(color: Colors.red)),
+                      const Text('删除此账号', style: TextStyle(color: Colors.red)),
                   onTap: () {
                     Navigator.pop(context);
                     onConfirmDelete?.call();

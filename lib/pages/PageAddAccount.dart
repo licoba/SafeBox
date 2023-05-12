@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:safebox/model/AccountBean.dart';
+import '../controllers/HomeController.dart';
 import '../helper/DatabaseHelper.dart';
 import '../widget/TextInputAccount.dart';
 import '../widget/ToastUtil.dart';
@@ -131,10 +132,12 @@ class _PageAddAccountState extends State<PageAddAccount> {
         }
       }
     }
+    final HomeController homeController = Get.put(HomeController());
     AccountBean accountBean = AccountBean(
         name: name, account: account, pwd: pwd, customFields: customFields);
-    dbHelper.insert(accountBean);
-    
+    homeController.addAccount(accountBean);
+
+    Get.back();
   }
 
   Future<void> getAllResults() async {
