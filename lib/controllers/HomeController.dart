@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,16 +29,12 @@ class HomeController extends GetxController {
     int result = await dbHelper.delete(bean);
     debugPrint('删除 $bean 操作已完成，结果：$result');
     _loadData();
-    ToastUtil.showSuccess("账号已删除");
+    ToastUtil.showSuccess(icon: Icons.delete_outlined, message: "账号已删除");
   }
-
-
 
   Future<void> addAccount(AccountBean bean) async {
     debugPrint('添加账号 $bean');
     await dbHelper.insert(bean);
     _loadData();
-    ToastUtil.showSuccess("账号已添加");
-
   }
 }

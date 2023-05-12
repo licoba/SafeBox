@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.safebox">
+    package="com.licoba.safebox">
    <application
         android:label="safebox"
         android:name="${applicationName}"

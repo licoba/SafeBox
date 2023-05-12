@@ -132,11 +132,11 @@ class _PageAddAccountState extends State<PageAddAccount> {
         }
       }
     }
+    ToastUtil.showSuccess(message: "账号已添加");
     final HomeController homeController = Get.put(HomeController());
     AccountBean accountBean = AccountBean(
         name: name, account: account, pwd: pwd, customFields: customFields);
     homeController.addAccount(accountBean);
-
     Get.back();
   }
 

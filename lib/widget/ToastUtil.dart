@@ -5,9 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safebox/theme/APPThemeSettings.dart';
 
 class ToastUtil {
-
-  static void showSuccess(String message) {
-    debugPrint("showToast $message");
+  static void showSuccess({IconData? icon = Icons.check, required String message}) {
+    debugPrint("showSuccess $message");
     int seconds = 1;
     bool crossPage = true;
     bool clickClose = false;
@@ -29,24 +28,35 @@ class ToastUtil {
       backButtonBehavior: backButtonBehavior,
       animationDuration: Duration(milliseconds: animationMilliseconds),
       animationReverseDuration:
-      Duration(milliseconds: animationReverseMilliseconds),
+          Duration(milliseconds: animationReverseMilliseconds),
       toastBuilder: (_) => Align(
         alignment: const Alignment(0, 0.8),
-        child:  Card(
-          elevation: 4.0,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(1),
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 3,
+                blurRadius: 7,
+                offset: Offset(0, 2), // changes position of shadow
+              ),
+            ],
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              IconButton(
-                  icon: const Icon(
-                    Icons.check_circle,
-                    color:  Colors.green,
-                  ),
-                  onPressed: () {
-
-                  }),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.only(left: 12),
+                child: Icon(
+                  icon ?? Icons.check,
+                  color: Colors.green,
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Text(message),
               ),
             ],
@@ -55,7 +65,6 @@ class ToastUtil {
       ),
     );
   }
-
 
   static void showToast(String message) {
     debugPrint("showToast $message");
@@ -83,13 +92,14 @@ class ToastUtil {
           Duration(milliseconds: animationReverseMilliseconds),
       toastBuilder: (_) => Align(
         alignment: const Alignment(0, 0.8),
-        child:  Card(
+        child: Card(
           elevation: 4.0,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Text(message),
               ),
             ],
