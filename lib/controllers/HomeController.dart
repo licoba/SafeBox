@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../helper/DatabaseHelper.dart';
 import '../model/AccountBean.dart';
+import '../model/LeftImageObject.dart';
 import '../widget/ToastUtil.dart';
 
 class HomeController extends GetxController {
@@ -19,10 +23,21 @@ class HomeController extends GetxController {
   Future<void> _loadData() async {
     // loading.value = true; // 设置为加载状态
     // 模拟异步加载数据
+    await (parseJsonFile());
     List<AccountBean> data = await dbHelper.accountBeans();
     accountList.assignAll(data);
     // loading.value = false; // 设置为非加载状态
   }
+
+  // 解析 JSON 文件并映射到 LeftImageObject 对象列表中
+  Future<List<LeftImageObject>> parseJsonFile() async {
+    String jsonData = await rootBundle.loadString('assets/data/brand_models.json');
+    List<dynamic> jsonList = json.decode(jsonData);
+    List<LeftImageObject> list = jsonList.map((json) => LeftImageObject.fromJson(json)).toList();
+    Get.put(list);
+    return list;
+  }
+
 
   Future<void> deleteAccount(AccountBean bean) async {
     debugPrint('删除账号 $bean');

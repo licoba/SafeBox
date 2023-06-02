@@ -32,23 +32,25 @@ class APPThemeSettings {
   };
 
   ThemeData themeData = ThemeData.light().copyWith(
-    primaryColor: Colors.lightBlue,
+    primaryColor: Colors.white,
     indicatorColor: Colors.white,
     brightness: Brightness.light,
     //设置明暗模式为白天模式
     splashColor: Colors.transparent,
     // 点击时的高亮效果设置为透明
-    highlightColor: Colors.transparent,
+    highlightColor: Colors.grey,
     // 长按时的扩散效果设置为透明
-    // iconTheme: IconThemeData(color: Colors.yellow),//设置icon主题色为黄色
+    iconTheme: const IconThemeData(color: Colors.black),//设置icon主题色为黑色
     primaryTextTheme: const TextTheme(
       titleLarge: TextStyle(color: Colors.white),
       titleMedium: TextStyle(color: Colors.white),
       titleSmall: TextStyle(color: Colors.white),
     ),
     appBarTheme: const AppBarTheme(
-      titleTextStyle: TextStyle(color: Colors.white,fontSize: 20),
-      toolbarTextStyle: TextStyle(color: Colors.white,fontSize: 20)
+      color: Colors.white,
+      titleTextStyle: TextStyle(color: Colors.black,fontSize: 20),
+      toolbarTextStyle: TextStyle(color: Colors.black,fontSize: 20),
+      iconTheme: IconThemeData(color: Colors.black),
     ),
     textButtonTheme: const TextButtonThemeData(
       style: ButtonStyle(),
@@ -60,6 +62,7 @@ class APPThemeSettings {
         style: ButtonStyle()
     ),
     scaffoldBackgroundColor: const MaterialColor(0xFFFFFFFF, myBgColorMap),
+ 
     // primarySwatch: const MaterialColor(
     //   0xFF03A9F4,
     //   <int, Color>{

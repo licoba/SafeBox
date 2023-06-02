@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:safebox/model/AccountBean.dart';
 import 'package:safebox/routes/APPRouter.dart';
 import 'package:safebox/theme/APPThemeSettings.dart';
+import 'package:safebox/widget/MainDrawer.dart';
 import '../controllers/HomeController.dart';
 import '../utils/UIUtils.dart';
 import '../widget/AccountItem.dart';
@@ -40,7 +42,6 @@ class PageHome extends StatefulWidget {
 
 class _PageHomeState extends State<PageHome> {
   final HomeController homeController = Get.put(HomeController());
-
 
   void jumpToAddAccount(AccountBean? accountBean) {
     debugPrint("去添加账号页面 $accountBean");
@@ -137,15 +138,32 @@ class _PageHomeState extends State<PageHome> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('保险箱'),
+          title: const Align(
+            alignment: Alignment.centerLeft,
+            child: Text('保险箱'),
+          ),
+          elevation: 0.0, // 去掉阴影
+          systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: Colors.transparent), //  状态栏透明
+
+          actions: <Widget>[
+            IconButton(
+              splashRadius: 20,
+              // splashColor: Colors.grey,
+              icon: const Icon(Icons.add),
+              onPressed: () {jumpToAddAccount(null);},
+            ),
+            IconButton(
+              splashRadius: 20,
+              // splashColor: Colors.grey,
+              icon: const Icon(Icons.search),
+              onPressed: () {},
+            ),
+            const SizedBox(width: 8), // 这里添加了一个SizedBox来增加间距
+          ],
         ),
         body: Obx(() => _buildListView()),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => debugPrint("FloatingActionButton"),
-          child: IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => jumpToAddAccount(null)),
-        ));
+        drawer: const MainDrawer(),
+       );
   }
 }
 

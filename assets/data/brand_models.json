@@ -1,0 +1,22 @@
+[
+  {
+    "name": "星巴克",
+    "englishName": "StarBucks",
+    "imgUrl": "starbucks.svg"
+  },
+  {
+    "name": "谷歌",
+    "englishName": "Google",
+    "imgUrl": "google.png"
+  },
+  {
+    "name": "微软",
+    "englishName": "microsoft",
+    "imgUrl": "microsoft.png"
+  },
+  {
+    "name": "Google浏览器，谷歌浏览器，Chrome，Chrome浏览器",
+    "englishName": "microsoft",
+    "imgUrl": "chrome.png"
+  }
+]
